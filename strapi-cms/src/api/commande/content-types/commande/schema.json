@@ -1,0 +1,68 @@
+{
+  "kind": "collectionType",
+  "collectionName": "commandes",
+  "info": {
+    "singularName": "commande",
+    "pluralName": "commandes",
+    "displayName": "Commande"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "paid",
+        "failed",
+        "cancelled"
+      ],
+      "default": "pending",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "default": "eur",
+      "required": true
+    },
+    "subtotal": {
+      "type": "decimal",
+      "min": 0,
+      "required": true
+    },
+    "shippingAmount": {
+      "type": "decimal",
+      "min": 0,
+      "required": true
+    },
+    "total": {
+      "type": "decimal",
+      "min": 0,
+      "required": true
+    },
+    "lineItems": {
+      "type": "json",
+      "required": true
+    },
+    "customerEmail": {
+      "type": "email",
+      "private": true
+    },
+    "shippingAddress": {
+      "type": "json",
+      "private": true
+    },
+    "paymentSimulationStartedAt": {
+      "type": "datetime",
+      "private": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "commandes"
+    }
+  }
+}

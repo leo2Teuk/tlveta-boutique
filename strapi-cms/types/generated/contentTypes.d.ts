@@ -493,6 +493,7 @@ export interface ApiCommandeCommande extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'eur'>;
     customerEmail: Schema.Attribute.Email & Schema.Attribute.Private;
+    deliveredAt: Schema.Attribute.DateTime;
     lineItems: Schema.Attribute.JSON & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -500,9 +501,11 @@ export interface ApiCommandeCommande extends Struct.CollectionTypeSchema {
       'api::commande.commande'
     > &
       Schema.Attribute.Private;
+    paidAt: Schema.Attribute.DateTime;
     paymentSimulationStartedAt: Schema.Attribute.DateTime &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    shippedAt: Schema.Attribute.DateTime;
     shippingAddress: Schema.Attribute.JSON & Schema.Attribute.Private;
     shippingAmount: Schema.Attribute.Decimal &
       Schema.Attribute.Required &
@@ -533,6 +536,28 @@ export interface ApiCommandeCommande extends Struct.CollectionTypeSchema {
         },
         number
       >;
+    trackingCarrier: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 80;
+      }>;
+    trackingEvents: Schema.Attribute.JSON;
+    trackingNumber: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 120;
+      }>;
+    trackingStatus: Schema.Attribute.Enumeration<
+      [
+        'awaiting_payment',
+        'payment_confirmed',
+        'preparing',
+        'shipped',
+        'delivered',
+        'cancelled',
+      ]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'awaiting_payment'>;
+    trackingUpdatedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1124,6 +1149,10 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
+    avatarUrl: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 2048;
+      }>;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     commandes: Schema.Attribute.Relation<'oneToMany', 'api::commande.commande'>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
@@ -1136,6 +1165,14 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    firstName: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 80;
+      }>;
+    lastName: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 80;
+      }>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1147,6 +1184,10 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
+      }>;
+    phoneNumber: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 32;
       }>;
     provider: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;

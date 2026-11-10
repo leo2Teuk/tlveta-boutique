@@ -1,6 +1,12 @@
 export default {
   routes: [
     {
+      method: 'PUT',
+      path: '/client/profil',
+      handler: 'commande.updateProfile',
+      config: { auth: {} },
+    },
+    {
       method: 'POST',
       path: '/checkout/commandes',
       handler: 'commande.checkout',

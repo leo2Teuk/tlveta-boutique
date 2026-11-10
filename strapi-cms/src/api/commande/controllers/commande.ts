@@ -3,6 +3,7 @@ import { factories } from '@strapi/strapi';
 const orderUid = 'api::commande.commande';
 const cartUid = 'api::panier.panier';
 const lineUid = 'api::ligne-panier.ligne-panier';
+const userUid = 'plugin::users-permissions.user';
 const shippingAmountCents = 400;
 const simulationDurationMs = 10_000;
 
@@ -29,6 +30,7 @@ type CustomerOrder = {
   total: number | string;
   status: string;
   paymentSimulationStartedAt?: string | Date | null;
+  trackingEvents?: unknown;
 };
 
 function validAddressField(value: unknown): value is string {
@@ -39,9 +41,76 @@ function optionalAddressField(value: unknown): value is string | undefined {
   return value === undefined || (typeof value === 'string' && value.length <= 120);
 }
 
+function validProfileText(value: unknown, maxLength: number): value is string {
+  return typeof value === 'string' && value.length <= maxLength;
+}
+
+function validAvatarUrl(value: unknown): value is string {
+  if (!validProfileText(value, 2048)) return false;
+  const url = value.trim();
+  if (url.length === 0) return true;
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
+      parsed.hostname.length > 0
+    );
+  } catch (error) {
+    if (error instanceof TypeError) return false;
+    throw error;
+  }
+}
+
 export default factories.createCoreController(
   'api::commande.commande',
   ({ strapi }) => ({
+    async updateProfile(ctx) {
+      const user = ctx.state.user;
+      if (!user) return ctx.unauthorized();
+
+      const body = ctx.request.body;
+      if (!body || typeof body !== 'object' || Array.isArray(body)) {
+        return ctx.badRequest('A valid customer profile is required.');
+      }
+      const profile = body as Record<string, unknown>;
+      const allowedFields = [
+        'firstName',
+        'lastName',
+        'phoneNumber',
+        'avatarUrl',
+      ];
+      if (
+        Object.keys(profile).some((field) => !allowedFields.includes(field)) ||
+        !validProfileText(profile.firstName, 80) ||
+        !validProfileText(profile.lastName, 80) ||
+        !validProfileText(profile.phoneNumber, 32) ||
+        !validAvatarUrl(profile.avatarUrl)
+      ) {
+        return ctx.badRequest('A valid customer profile is required.');
+      }
+
+      const updatedProfile = await strapi.db.query(userUid).update({
+        where: { id: user.id },
+        data: {
+          firstName: profile.firstName.trim(),
+          lastName: profile.lastName.trim(),
+          phoneNumber: profile.phoneNumber.trim(),
+          avatarUrl: profile.avatarUrl.trim(),
+        },
+        select: [
+          'id',
+          'username',
+          'email',
+          'firstName',
+          'lastName',
+          'phoneNumber',
+          'avatarUrl',
+        ],
+      });
+      if (!updatedProfile) return ctx.notFound('Customer profile not found.');
+      ctx.body = { data: updatedProfile };
+    },
+
     async checkout(ctx) {
       const user = ctx.state.user;
       if (!user) return ctx.unauthorized();
@@ -93,9 +162,15 @@ export default factories.createCoreController(
         0,
       );
       const totalCents = subtotalCents + shippingAmountCents;
+      const createdAt = new Date().toISOString();
       const order = (await strapi.db.query(orderUid).create({
         data: {
           status: 'pending',
+          trackingStatus: 'awaiting_payment',
+          trackingUpdatedAt: createdAt,
+          trackingEvents: [
+            { status: 'awaiting_payment', happenedAt: createdAt },
+          ],
           currency: 'eur',
           subtotal: subtotalCents / 100,
           shippingAmount: shippingAmountCents / 100,
@@ -176,6 +251,7 @@ export default factories.createCoreController(
             'total',
             'status',
             'paymentSimulationStartedAt',
+            'trackingEvents',
           ],
         });
       if (!order) return ctx.notFound('Order not found.');
@@ -202,9 +278,22 @@ export default factories.createCoreController(
       }
 
       await strapi.db.transaction(async () => {
+        const paidAt = new Date().toISOString();
+        const trackingEvents = Array.isArray(order.trackingEvents)
+          ? order.trackingEvents
+          : [];
         await strapi.db.query(orderUid).update({
           where: { id: order.id },
-          data: { status: 'paid' },
+          data: {
+            status: 'paid',
+            trackingStatus: 'payment_confirmed',
+            paidAt,
+            trackingUpdatedAt: paidAt,
+            trackingEvents: [
+              ...trackingEvents,
+              { status: 'payment_confirmed', happenedAt: paidAt },
+            ],
+          },
         });
 
         const cart = await strapi.db.query(cartUid).findOne({
@@ -282,7 +371,20 @@ export default factories.createCoreController(
           documentId: ctx.params.documentId,
           user: { id: user.id },
         },
-        select: ['documentId', 'status', 'total', 'createdAt'],
+        select: [
+          'documentId',
+          'status',
+          'total',
+          'createdAt',
+          'trackingStatus',
+          'trackingCarrier',
+          'trackingNumber',
+          'trackingEvents',
+          'paidAt',
+          'shippedAt',
+          'deliveredAt',
+          'trackingUpdatedAt',
+        ],
       });
       if (!order) return ctx.notFound('Order not found.');
       ctx.body = { data: order };
@@ -303,6 +405,14 @@ export default factories.createCoreController(
           'total',
           'lineItems',
           'createdAt',
+          'trackingStatus',
+          'trackingCarrier',
+          'trackingNumber',
+          'trackingEvents',
+          'paidAt',
+          'shippedAt',
+          'deliveredAt',
+          'trackingUpdatedAt',
         ],
       });
       ctx.body = { data: orders };

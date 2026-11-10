@@ -7,7 +7,43 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register() {},
+  register({ strapi }: { strapi: Core.Strapi }) {
+    strapi.documents.use(async (context, next) => {
+      if (
+        context.uid !== 'api::commande.commande' ||
+        context.action !== 'update'
+      ) {
+        return next();
+      }
+
+      const params = context.params;
+      if (!params?.data) return next();
+      const { documentId, data } = params;
+      const nextStatus = data?.trackingStatus;
+      if (typeof documentId !== 'string' || typeof nextStatus !== 'string') {
+        return next();
+      }
+
+      const previous = await strapi
+        .documents('api::commande.commande')
+        .findOne({ documentId });
+      if (previous?.trackingStatus === nextStatus) return next();
+
+      const updatedAt = new Date().toISOString();
+      const previousEvents = Array.isArray(previous?.trackingEvents)
+        ? previous.trackingEvents
+        : [];
+      data.trackingUpdatedAt = updatedAt;
+      data.trackingEvents = [
+        ...previousEvents,
+        { status: nextStatus, happenedAt: updatedAt },
+      ];
+      if (nextStatus === 'shipped') data.shippedAt = updatedAt;
+      if (nextStatus === 'delivered') data.deliveredAt = updatedAt;
+
+      return next();
+    });
+  },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -33,7 +69,7 @@ export default {
 
     const authenticatedActions = [
       'plugin::users-permissions.user.me',
-      'plugin::users-permissions.user.update',
+      'api::commande.commande.updateProfile',
       'api::commande.commande.checkout',
       'api::commande.commande.startSimulation',
       'api::commande.commande.confirmSimulation',

@@ -73,6 +73,12 @@ Strapi avec `npm run develop`.
   secondes avant de confirmer la commande et de vider le panier.
 - Enregistrement d’une adresse uniquement pour une commande payée appartenant
   au client connecté.
+- Profil client modifiable (prénom, nom, téléphone et URL de photo) via les
+  routes authentifiées `users/me` et `client/profil`. La mise à jour est limitée
+  aux champs de profil du client connecté.
+- Suivi de commande horodaté : le paiement confirmé démarre le suivi ; les
+  changements de statut de suivi dans l’administration ajoutent un événement
+  avec sa date et peuvent renseigner le transporteur et le numéro de suivi.
 - Les 10 tarifs transmis pour le catalogue local :
 
 | Produit | Prix |
@@ -272,6 +278,13 @@ Content-Type: application/json
 La confirmation de paiement vide les lignes du panier. Les commandes et les
 adresses ne sont accessibles qu’à leur propriétaire authentifié.
 
+Après l’expédition, modifiez le champ `trackingStatus` de la commande dans
+l’administration Strapi (`preparing`, `shipped` ou `delivered`). Les changements
+sont ajoutés à `trackingEvents` avec leur date. Renseignez également
+`trackingCarrier` et `trackingNumber` pour les afficher au client. Le statut
+`awaiting_payment` est créé avec la commande et `payment_confirmed` est défini
+par la confirmation du paiement simulé.
+
 ### 5. Ajouter un produit ou une catégorie depuis Postman
 
 Pour créer du contenu dans Strapi, générez dans l’administration une clé
@@ -330,6 +343,8 @@ apparaissent dans le catalogue public.
 | `GET` | `/api/categories/:documentId` | Public | Détail catégorie |
 | `POST` | `/api/auth/local/register` | Public | Créer un compte client |
 | `POST` | `/api/auth/local` | Public | Connexion client et JWT |
+| `GET` | `/api/users/me` | Client connecté | Lire son profil |
+| `PUT` | `/api/client/profil` | Client connecté | Modifier les champs autorisés de son profil |
 | `GET` | `/api/mon-panier` | Client connecté | Lire son panier |
 | `POST` | `/api/mon-panier/lignes` | Client connecté | Ajouter une ligne |
 | `PUT` | `/api/mon-panier/lignes/:lineId` | Client connecté | Modifier une quantité |

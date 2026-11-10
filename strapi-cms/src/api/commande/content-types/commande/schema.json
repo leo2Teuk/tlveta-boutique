@@ -22,6 +22,42 @@
       "default": "pending",
       "required": true
     },
+    "trackingStatus": {
+      "type": "enumeration",
+      "enum": [
+        "awaiting_payment",
+        "payment_confirmed",
+        "preparing",
+        "shipped",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "awaiting_payment",
+      "required": true
+    },
+    "trackingCarrier": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "trackingNumber": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "paidAt": {
+      "type": "datetime"
+    },
+    "shippedAt": {
+      "type": "datetime"
+    },
+    "deliveredAt": {
+      "type": "datetime"
+    },
+    "trackingUpdatedAt": {
+      "type": "datetime"
+    },
+    "trackingEvents": {
+      "type": "json"
+    },
     "currency": {
       "type": "string",
       "default": "eur",

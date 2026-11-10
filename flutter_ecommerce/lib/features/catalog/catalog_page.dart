@@ -1020,8 +1020,26 @@ class _ShippingAddressCardState extends ConsumerState<ShippingAddressCard> {
             'Complément d’adresse (facultatif)',
             required: false,
           ),
-          _addressField(_postalCodeController, 'Code postal'),
-          _addressField(_cityController, 'Ville'),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final postalCode = _addressField(
+                _postalCodeController,
+                'Code postal',
+              );
+              final city = _addressField(_cityController, 'Ville');
+              if (constraints.maxWidth < 560) {
+                return Column(children: [postalCode, city]);
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: postalCode),
+                  const SizedBox(width: 12),
+                  Expanded(child: city),
+                ],
+              );
+            },
+          ),
           _addressField(_countryController, 'Pays'),
           _addressField(
             _phoneController,

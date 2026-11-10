@@ -85,7 +85,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 460),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(
+              MediaQuery.sizeOf(context).width < 400 ? 16 : 24,
+            ),
             child: session == null
                 ? _buildForm()
                 : _buildSignedIn(session, orders!),
@@ -243,16 +245,23 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                       for (final order in items)
                         Card(
                           child: ListTile(
-                            title: Text(_orderStatusLabel(order.status)),
+                            onTap: () => context.push(
+                              '/commandes/${order.documentId}/suivi',
+                            ),
+                            leading: const Icon(Icons.local_shipping_outlined),
+                            title: Text(
+                              _trackingStatusLabel(order.trackingStatus),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             subtitle: Text(
-                              order.createdAt.toLocal().toString().substring(
-                                0,
-                                10,
-                              ),
+                              '${_formatOrderDate(order.createdAt)} · '
+                              '${order.total.toStringAsFixed(2).replaceAll('.', ',')} €'
+                              '\n${_orderStatusLabel(order.status)}',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            trailing: Text(
-                              '${order.total.toStringAsFixed(2).replaceAll('.', ',')} €',
-                            ),
+                            trailing: const Icon(Icons.chevron_right),
                           ),
                         ),
                     ],
@@ -292,3 +301,19 @@ String _orderStatusLabel(String status) => switch (status) {
   'cancelled' => 'Annulée',
   _ => 'Commande',
 };
+
+String _trackingStatusLabel(String status) => switch (status) {
+  'awaiting_payment' => 'En attente de paiement',
+  'payment_confirmed' => 'Paiement confirmé',
+  'preparing' => 'En préparation',
+  'shipped' => 'Expédiée',
+  'delivered' => 'Livrée',
+  'cancelled' => 'Suivi annulé',
+  _ => 'Suivi indisponible',
+};
+
+String _formatOrderDate(DateTime date) {
+  final local = date.toLocal();
+  return '${local.day.toString().padLeft(2, '0')}/'
+      '${local.month.toString().padLeft(2, '0')}/${local.year}';
+}

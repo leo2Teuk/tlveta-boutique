@@ -130,7 +130,7 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
                                   crossAxisCount: columns,
                                   mainAxisSpacing: 20,
                                   crossAxisSpacing: 20,
-                                  mainAxisExtent: 390,
+                                  mainAxisExtent: columns == 1 ? 390 : 365,
                                 ),
                           ),
                         );
@@ -618,6 +618,7 @@ class _ProductCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productLocation = '/produit/${product.documentId}';
+    final compactCard = MediaQuery.sizeOf(context).width < 600;
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -637,7 +638,12 @@ class _ProductCard extends ConsumerWidget {
           children: [
             Expanded(child: _ProductImage(imageUrl: product.imageUrl)),
             Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 17),
+              padding: EdgeInsets.fromLTRB(
+                compactCard ? 12 : 18,
+                compactCard ? 12 : 16,
+                compactCard ? 12 : 18,
+                compactCard ? 13 : 17,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -658,7 +664,9 @@ class _ProductCard extends ConsumerWidget {
                     product.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: compactCard
+                        ? Theme.of(context).textTheme.titleMedium
+                        : Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 7),
                   Text(

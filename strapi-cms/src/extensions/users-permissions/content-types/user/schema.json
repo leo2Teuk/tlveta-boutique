@@ -26,6 +26,22 @@
       "configurable": false,
       "required": true
     },
+    "firstName": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "lastName": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "phoneNumber": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "avatarUrl": {
+      "type": "string",
+      "maxLength": 2048
+    },
     "provider": {
       "type": "string",
       "configurable": false

@@ -32,6 +32,8 @@ export default {
     }
 
     const authenticatedActions = [
+      'plugin::users-permissions.user.me',
+      'plugin::users-permissions.user.update',
       'api::commande.commande.checkout',
       'api::commande.commande.startSimulation',
       'api::commande.commande.confirmSimulation',

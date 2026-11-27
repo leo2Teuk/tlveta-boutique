@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/network/api_exception.dart';
 import '../../shared/theme/app_theme.dart';
 import '../account/auth_session.dart';
+import '../support/faq_chat_launcher.dart';
 import 'cart_repository.dart';
 
 class CartPage extends ConsumerWidget {
@@ -34,6 +35,7 @@ class CartPage extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back),
         ),
       ),
+      floatingActionButton: const FaqChatLauncher(),
       body: cart.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(

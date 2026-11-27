@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/network/api_exception.dart';
 import '../account/order_repository.dart';
+import '../support/faq_chat_launcher.dart';
 import 'cart_repository.dart';
 
 class PaymentPage extends ConsumerStatefulWidget {
@@ -125,6 +126,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
           icon: const Icon(Icons.arrow_back),
         ),
       ),
+      floatingActionButton: const FaqChatLauncher(),
       body: LayoutBuilder(
         builder: (context, constraints) => SingleChildScrollView(
           child: ConstrainedBox(

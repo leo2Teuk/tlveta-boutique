@@ -6,6 +6,7 @@ import '../../core/network/api_exception.dart';
 import 'auth_repository.dart';
 import 'auth_session.dart';
 import 'order_repository.dart';
+import '../support/faq_chat_launcher.dart';
 
 class AccountPage extends ConsumerStatefulWidget {
   const AccountPage({super.key, this.returnTo});
@@ -81,6 +82,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           icon: const Icon(Icons.arrow_back),
         ),
       ),
+      floatingActionButton: const FaqChatLauncher(),
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: session == null ? 460 : 1040),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/network/api_exception.dart';
+import '../support/faq_chat_launcher.dart';
 import 'auth_session.dart';
 import 'profile_repository.dart';
 
@@ -33,6 +34,7 @@ class ProfilePage extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back),
         ),
       ),
+      floatingActionButton: const FaqChatLauncher(),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),

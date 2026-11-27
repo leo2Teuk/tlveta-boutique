@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../shared/theme/app_theme.dart';
@@ -64,104 +66,117 @@ class _FaqChatSheetState extends State<FaqChatSheet> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final compact = size.width < 600;
-    return SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: SizedBox(
-            height: size.height * (compact ? 0.88 : 0.76),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                compact ? 16 : 24,
-                8,
-                compact ? 16 : 24,
-                16,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        backgroundColor: AppTheme.forest,
-                        foregroundColor: Colors.white,
-                        child: Icon(Icons.support_agent_outlined),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Aide TLveta',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const Text(
-                              'Réponses aux questions fréquentes',
-                              style: TextStyle(color: AppTheme.muted),
-                            ),
-                          ],
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    final availableHeight = (size.height - keyboardInset)
+        .clamp(0.0, size.height)
+        .toDouble();
+    final sheetHeight = math.min(
+      availableHeight * (compact ? 0.88 : 0.76),
+      compact ? 680.0 : 640.0,
+    );
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: keyboardInset),
+      child: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: SizedBox(
+              height: sheetHeight,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  compact ? 16 : 24,
+                  8,
+                  compact ? 16 : 24,
+                  16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: AppTheme.forest,
+                          foregroundColor: Colors.white,
+                          child: Icon(Icons.support_agent_outlined),
                         ),
-                      ),
-                      IconButton(
-                        tooltip: 'Fermer',
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 28),
-                  Expanded(
-                    child: ListView.builder(
-                      controller: _messagesController,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) =>
-                          _MessageBubble(message: _messages[index]),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      for (final question in _suggestedQuestions)
-                        ActionChip(
-                          label: Text(question),
-                          onPressed: () => _sendQuestion(question),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _questionController,
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (_) => _sendQuestion(),
-                          decoration: const InputDecoration(
-                            hintText: 'Écrivez votre question',
-                            isDense: true,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Aide TLveta',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const Text(
+                                'Réponses aux questions fréquentes',
+                                style: TextStyle(color: AppTheme.muted),
+                              ),
+                            ],
                           ),
                         ),
+                        IconButton(
+                          tooltip: 'Fermer',
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 28),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: _messagesController,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) =>
+                            _MessageBubble(message: _messages[index]),
                       ),
-                      const SizedBox(width: 8),
-                      IconButton.filled(
-                        tooltip: 'Envoyer',
-                        onPressed: () => _sendQuestion(),
-                        icon: const Icon(Icons.send_outlined),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 20),
-                  const Text(
-                    'Réponses automatiques limitées aux informations '
-                    'confirmées de la boutique.',
-                    style: TextStyle(color: AppTheme.muted, fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        for (final question in _suggestedQuestions)
+                          ActionChip(
+                            label: Text(question),
+                            onPressed: () => _sendQuestion(question),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _questionController,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => _sendQuestion(),
+                            decoration: const InputDecoration(
+                              hintText: 'Écrivez votre question',
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton.filled(
+                          tooltip: 'Envoyer',
+                          onPressed: () => _sendQuestion(),
+                          icon: const Icon(Icons.send_outlined),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 20),
+                    const Text(
+                      'Réponses automatiques limitées aux informations '
+                      'confirmées de la boutique.',
+                      style: TextStyle(color: AppTheme.muted, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -91,33 +91,9 @@ class ProductDetailPage extends ConsumerWidget {
                   final images = item.imageUrls.isEmpty
                       ? <String?>[null]
                       : item.imageUrls.map<String?>((url) => url).toList();
-                  final image = AspectRatio(
+                  final image = _ProductGallery(
+                    images: images,
                     aspectRatio: compact ? 1.2 : 1,
-                    child: images.first == null
-                        ? const ColoredBox(
-                            color: Color(0xFFECEDE7),
-                            child: Icon(
-                              Icons.image_outlined,
-                              size: 48,
-                              color: AppTheme.muted,
-                            ),
-                          )
-                        : PageView.builder(
-                            itemCount: images.length,
-                            itemBuilder: (context, index) => Image.network(
-                              images[index]!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const ColoredBox(
-                                    color: Color(0xFFECEDE7),
-                                    child: Icon(
-                                      Icons.broken_image_outlined,
-                                      size: 48,
-                                      color: AppTheme.muted,
-                                    ),
-                                  ),
-                            ),
-                          ),
                   );
                   final details = Padding(
                     padding: EdgeInsets.all(compact ? 16 : 28),
@@ -215,6 +191,84 @@ class ProductDetailPage extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(error.userMessage)));
+      }
+    }
+
+    class _ProductGallery extends StatefulWidget {
+      const _ProductGallery({required this.images, required this.aspectRatio});
+
+      final List<String?> images;
+      final double aspectRatio;
+
+      @override
+      State<_ProductGallery> createState() => _ProductGalleryState();
+    }
+
+    class _ProductGalleryState extends State<_ProductGallery> {
+      var _currentIndex = 0;
+
+      @override
+      Widget build(BuildContext context) {
+        return AspectRatio(
+          aspectRatio: widget.aspectRatio,
+          child: Stack(
+            children: [
+              if (widget.images.first == null)
+                const ColoredBox(
+                  color: Color(0xFFECEDE7),
+                  child: Center(
+                    child: Icon(
+                      Icons.image_outlined,
+                      size: 48,
+                      color: AppTheme.muted,
+                    ),
+                  ),
+                )
+              else
+                PageView.builder(
+                  itemCount: widget.images.length,
+                  onPageChanged: (index) => setState(() => _currentIndex = index),
+                  itemBuilder: (context, index) => Image.network(
+                    widget.images[index]!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const ColoredBox(
+                      color: Color(0xFFECEDE7),
+                      child: Center(
+                        child: Icon(
+                          Icons.broken_image_outlined,
+                          size: 48,
+                          color: AppTheme.muted,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (widget.images.length > 1)
+                Positioned(
+                  right: 12,
+                  bottom: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${_currentIndex + 1} / ${widget.images.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
       }
     }
   }

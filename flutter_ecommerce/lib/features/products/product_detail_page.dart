@@ -7,6 +7,7 @@ import '../../shared/theme/app_theme.dart';
 import '../account/auth_session.dart';
 import '../catalog/catalog_providers.dart';
 import '../cart/cart_repository.dart';
+import '../support/faq_chat_launcher.dart';
 
 class ProductDetailPage extends ConsumerWidget {
   const ProductDetailPage({required this.documentId, super.key});
@@ -65,6 +66,7 @@ class ProductDetailPage extends ConsumerWidget {
         ),
         title: const Text('Détail du produit'),
       ),
+      floatingActionButton: const FaqChatLauncher(),
       body: product.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(

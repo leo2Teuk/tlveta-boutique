@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/network/api_exception.dart';
 import 'auth_session.dart';
 import 'order_repository.dart';
+import '../support/faq_chat_launcher.dart';
 
 class OrderTrackingPage extends ConsumerWidget {
   const OrderTrackingPage({required this.documentId, super.key});
@@ -42,6 +43,7 @@ class OrderTrackingPage extends ConsumerWidget {
           ),
         ],
       ),
+      floatingActionButton: const FaqChatLauncher(),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),

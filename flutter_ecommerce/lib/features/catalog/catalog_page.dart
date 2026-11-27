@@ -481,9 +481,19 @@ class _CatalogHeading extends StatelessWidget {
                   final searchField = TextField(
                     controller: searchController,
                     onChanged: onSearchChanged,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Rechercher un produit',
-                      prefixIcon: Icon(Icons.search),
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: searchController.text.isEmpty
+                          ? null
+                          : IconButton(
+                              tooltip: 'Effacer la recherche',
+                              onPressed: () {
+                                searchController.clear();
+                                onSearchChanged('');
+                              },
+                              icon: const Icon(Icons.close),
+                            ),
                     ),
                   );
                   final sortField = DropdownButtonFormField<String>(

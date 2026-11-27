@@ -20,7 +20,7 @@
 #
 # 3. LES SCHEMAS DOIVENT CORRESPONDRE. Si un content type existe d'un cote et
 #    pas de l'autre, le transfert echoue. Deployer le schema AVANT de pousser
-#    du contenu (voir CLAUDE.md, section 2).
+#    du contenu (voir la documentation du deploiement du schema).
 #
 # 4. LES MEDIAS SUIVENT. Les fichiers sont transferes avec les entrees. En
 #    prod ils repartent chez Cloudinary via le provider configure.

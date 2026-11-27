@@ -10,6 +10,7 @@ import '../account/auth_session.dart';
 import '../account/order_repository.dart';
 import '../categories/category.dart';
 import '../products/product.dart';
+import '../support/faq_chat_launcher.dart';
 import 'catalog_providers.dart';
 
 class CatalogPage extends ConsumerStatefulWidget {
@@ -55,6 +56,7 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
     final products = ref.watch(catalogProductsProvider(_query));
 
     return Scaffold(
+      floatingActionButton: const FaqChatLauncher(),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _SiteHeader(onExplore: _scrollToCatalog)),

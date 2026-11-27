@@ -62,6 +62,16 @@ and shipping carrier or tracking number when available. Staff can update
 in the Strapi administration. Strapi records each status change with a
 timestamp; the storefront does not invent delivery progress.
 
+## Storefront help
+
+The **Aide** button opens a deterministic FAQ chat available to visitors and
+customers throughout the storefront. It answers only the questions and facts
+included in the Flutter app, such as account requirements, demonstration
+payments, delivery fees, profile updates, and order tracking. Questions outside
+that list receive a fallback message; no contact channel is configured yet.
+The chat is local to the app session and does not send or store messages in
+Strapi.
+
 ## API routes
 
 - `GET /api/produits`, `GET /api/categories`: public catalogue reads.
